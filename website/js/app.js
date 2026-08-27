@@ -110,6 +110,6 @@ async function navAuth() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll('a[href="docs.html"]').forEach((a) => a.remove());
+  document.querySelectorAll('a[href="docs.html"], a[href="home.html"]').forEach((a) => a.remove());
   navAuth();
 });

@@ -3,38 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HexXstrap Cloud</title>
-  <link rel="stylesheet" href="css/app.css?v=3" />
+  <title>Explore — HexXstrap Cloud</title>
+  <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <nav class="nav">
     <a class="brand" href="index.html">Hex<i>X</i>strap</a>
-    <a class="n active" href="index.html">Home</a>
-    <a class="n" href="explore.html">Explore</a>
+    <a class="n active" href="index.html">Explore</a>
     <span class="nav-spacer"></span>
     <span id="nav-auth"></span>
   </nav>
   <main class="wrap">
-    <p class="kicker">Cloud</p>
-    <h1>Settings that follow you.</h1>
-    <p class="lead">Save HexXstrap configs and FastFlags. Find anyone by username. Roblox accounts never leave your PC.</p>
-    <div class="hero-actions">
-      <a class="btn" href="register.html">Create account</a>
-      <a class="btn secondary" href="explore.html">Browse users</a>
-    </div>
-    <div class="grid2">
-      <div class="card">
-        <h2>In the cloud</h2>
-        <p>App settings, FastFlags, lighting, mods, and extra flags. New options still sync later.</p>
-      </div>
-      <div class="card">
-        <h2>Stays on your PC</h2>
-        <p>Accounts tab, cookies, passwords, and MAC addresses are never uploaded.</p>
-      </div>
+    <h1>Explore</h1>
+    <p class="lead">Search public usernames and open their settings and FastFlags.</p>
+    <div class="card">
+      <label>Search</label>
+      <input id="q" placeholder="username" />
+      <div class="row"><button id="go" type="button">Search</button></div>
+      <div id="msg" class="msg"></div>
+      <div id="list" class="list"></div>
     </div>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    async function run() {
+      const q = $("q").value.trim();
+      $("list").innerHTML = "";
+      try {
+        const sb = getClient();
+        let query = sb.from("profiles").select("username, updated_at").eq("is_public", true).order("updated_at", { ascending: false }).limit(50);
+        if (q) query = query.ilike("username", "%" + q.replace(/%/g, "") + "%");
+        const { data, error } = await query;
+        if (error) throw error;
+        if (!data || !data.length) {
+          showMsg($("msg"), "No public users found.", "");
+          return;
+        }
+        showMsg($("msg"), data.length + " user" + (data.length === 1 ? "" : "s"), "");
+        $("list").innerHTML = data.map((p) =>
+          `<a class="item" href="user.html?u=${encodeURIComponent(p.username)}"><div><b>${p.username}</b><br><small>${formatWhen(p.updated_at)}</small></div><div>→</div></a>`
+        ).join("");
+      } catch (e) {
+        showMsg($("msg"), e.message || String(e), "err");
+      }
+    }
+    $("go").onclick = run;
+    $("q").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+    run();
+  </script>
 </body>
 </html>

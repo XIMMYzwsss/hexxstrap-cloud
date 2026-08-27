@@ -8,26 +8,25 @@
 </head>
 <body>
   <nav class="nav">
-    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
-    <a href="index.html">Home</a>
-    <a href="explore.html">Explore</a>
-    <a href="docs.html">API docs</a>
+    <a class="brand" href="index.html">Hex<i>X</i>strap</a>
+    <a class="n" href="index.html">Home</a>
+    <a class="n" href="explore.html">Explore</a>
     <span class="nav-spacer"></span>
     <span id="nav-auth"></span>
   </nav>
   <main class="wrap">
-    <h1>Register</h1>
-    <p class="lead">This is a HexXstrap website account, not a Roblox login.</p>
-    <div class="card" style="max-width:420px">
-      <label>Username (public, 3–24 letters/numbers/_)</label>
-      <input id="username" autocomplete="username" />
+    <h1>Create account</h1>
+    <p class="lead">Website login only — not Roblox.</p>
+    <div class="card auth">
+      <label>Username</label>
+      <input id="username" autocomplete="username" placeholder="3–24 letters, numbers, _" />
       <label>Email</label>
       <input id="email" type="email" autocomplete="email" />
       <label>Password</label>
       <input id="password" type="password" autocomplete="new-password" />
       <div class="row"><button id="go" type="button">Create account</button></div>
       <div id="msg" class="msg"></div>
-      <p class="lead">Already have an account? <a href="login.html">Log in</a></p>
+      <p class="lead" style="margin-top:16px">Already have one? <a href="login.html">Log in</a></p>
     </div>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -50,12 +49,11 @@
           return;
         }
         const { error } = await sb.auth.signUp({
-          email,
-          password,
-          options: { data: { username } }
+          email, password, options: { data: { username } }
         });
         if (error) throw error;
-        showMsg($("msg"), "Account created. If email confirmation is on, check your inbox, then log in.", "ok");
+        showMsg($("msg"), "Account created. You can log in now.", "ok");
+        setTimeout(() => location.href = "me.html", 700);
       } catch (e) {
         showMsg($("msg"), e.message || String(e), "err");
       }

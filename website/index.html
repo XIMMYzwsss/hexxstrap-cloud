@@ -8,37 +8,33 @@
 </head>
 <body>
   <nav class="nav">
-    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
-    <a class="active" href="index.html">Home</a>
-    <a href="explore.html">Explore</a>
-    <a href="docs.html">API docs</a>
+    <a class="brand" href="index.html">Hex<i>X</i>strap</a>
+    <a class="n active" href="index.html">Home</a>
+    <a class="n" href="explore.html">Explore</a>
     <span class="nav-spacer"></span>
     <span id="nav-auth"></span>
   </nav>
   <main class="wrap">
-    <h1>Cloud settings</h1>
-    <p class="lead">Save your HexXstrap settings and FastFlags online. Search other users by username and view their public config. Roblox accounts and cookies stay on your PC.</p>
-    <div class="card warn" id="setup-warn" hidden>
-      <b>Site is not connected yet.</b> GitHub Pages only hosts the files. Create a free Supabase project, run <code>supabase/schema.sql</code>, then put the project URL and anon key in <code>js/config.js</code>. Full steps are in <a href="docs.html">API docs</a> and <code>website/README.md</code>.
-    </div>
-    <div class="row">
+    <p class="kicker">Cloud</p>
+    <h1>Settings that follow you.</h1>
+    <p class="lead">Save HexXstrap configs and FastFlags. Find anyone by username. Roblox accounts never leave your PC.</p>
+    <div class="hero-actions">
       <a class="btn" href="register.html">Create account</a>
       <a class="btn secondary" href="explore.html">Browse users</a>
     </div>
     <div class="grid2">
       <div class="card">
-        <h2>What gets saved</h2>
-        <p class="lead">App settings, FastFlags, Roblox global/GBS options, and NVIDIA flags. The API keeps unknown fields so future HexXstrap versions still sync.</p>
+        <h2>In the cloud</h2>
+        <p>App settings, FastFlags, lighting, mods, and extra flags. New options still sync later.</p>
       </div>
       <div class="card">
-        <h2>What stays local</h2>
-        <p class="lead">The Accounts tab, Roblox cookies, login files, passwords, tokens, and MAC addresses are never stored here.</p>
+        <h2>Stays on your PC</h2>
+        <p>Accounts tab, cookies, passwords, and MAC addresses are never uploaded.</p>
       </div>
     </div>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
-  <script>if (!configured()) $("setup-warn").hidden = false;</script>
 </body>
 </html>

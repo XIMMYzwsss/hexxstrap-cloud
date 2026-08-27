@@ -8,20 +8,19 @@
 </head>
 <body>
   <nav class="nav">
-    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
-    <a href="index.html">Home</a>
-    <a href="explore.html">Explore</a>
-    <a href="docs.html">API docs</a>
+    <a class="brand" href="index.html">Hex<i>X</i>strap</a>
+    <a class="n" href="index.html">Home</a>
+    <a class="n" href="explore.html">Explore</a>
     <span class="nav-spacer"></span>
     <span id="nav-auth"></span>
   </nav>
   <main class="wrap">
     <h1>My settings</h1>
-    <p class="lead">Paste or edit the full HexXstrap config JSON. Save replaces everything (except forbidden account fields, which are stripped).</p>
+    <p class="lead">Paste the full HexXstrap config. Save replaces everything except account/cookie fields.</p>
     <div class="card">
-      <div class="row">
-        <div>Username: <b id="uname">—</b></div>
-        <div>Last saved: <b id="when">—</b></div>
+      <div class="meta">
+        <span>User <b id="uname">—</b></span>
+        <span>Saved <b id="when">—</b></span>
         <label class="toggle"><input id="pub" type="checkbox" checked /> Public profile</label>
       </div>
       <label>Config JSON</label>
@@ -37,8 +36,6 @@
   <script src="js/config.js"></script>
   <script src="js/app.js"></script>
   <script>
-    const empty = { settings: {}, fastFlags: {}, robloxGlobal: {}, nvidiaFlags: {}, extra: {} };
-
     async function load() {
       const sb = getClient();
       const user = await currentUser();
@@ -84,7 +81,7 @@
         const { error: pErr } = await sb.from("profiles").update({ is_public: $("pub").checked }).eq("id", user.id);
         if (pErr) throw pErr;
         await load();
-        showMsg($("msg"), "Saved. Account/cookie fields were stripped if present.", "ok");
+        showMsg($("msg"), "Saved.", "ok");
       } catch (e) {
         showMsg($("msg"), e.message || String(e), "err");
       }

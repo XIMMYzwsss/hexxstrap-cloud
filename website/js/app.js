@@ -92,24 +92,20 @@ async function currentUser() {
 async function navAuth() {
   const slot = $("nav-auth");
   if (!slot) return;
-  if (!configured()) {
-    slot.innerHTML = '<a href="docs.html">Setup</a>';
-    return;
-  }
   try {
     const user = await currentUser();
     if (user) {
-      slot.innerHTML = '<a href="me.html">My settings</a> <a href="#" id="logout-link">Log out</a>';
+      slot.innerHTML = '<a class="n" href="me.html">My settings</a><a class="n" href="#" id="logout-link">Log out</a>';
       $("logout-link")?.addEventListener("click", async (e) => {
         e.preventDefault();
         await getClient().auth.signOut();
         location.href = "index.html";
       });
     } else {
-      slot.innerHTML = '<a href="login.html">Log in</a> <a href="register.html">Register</a>';
+      slot.innerHTML = '<a class="n" href="login.html">Log in</a><a class="n" href="register.html">Register</a>';
     }
   } catch {
-    slot.innerHTML = '<a href="login.html">Log in</a>';
+    slot.innerHTML = '<a class="n" href="login.html">Log in</a>';
   }
 }
 

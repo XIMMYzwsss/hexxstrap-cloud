@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Set new password — HexXstrap Cloud</title>
+  <title>New password — HexXstrap Cloud</title>
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
   <nav class="nav">
-    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
+    <a class="brand" href="index.html">Hex<i>X</i>strap</a>
     <span class="nav-spacer"></span>
     <span id="nav-auth"></span>
   </nav>
   <main class="wrap">
     <h1>New password</h1>
-    <div class="card" style="max-width:420px">
+    <div class="card auth">
       <label>New password</label>
       <input id="password" type="password" autocomplete="new-password" />
       <div class="row"><button id="go" type="button">Save password</button></div>
@@ -30,8 +30,8 @@
         const sb = getClient();
         const { error } = await sb.auth.updateUser({ password: $("password").value });
         if (error) throw error;
-        showMsg($("msg"), "Password updated. You can log in now.", "ok");
-        setTimeout(() => location.href = "me.html", 800);
+        showMsg($("msg"), "Password updated.", "ok");
+        setTimeout(() => location.href = "me.html", 700);
       } catch (e) {
         showMsg($("msg"), e.message || String(e), "err");
       }

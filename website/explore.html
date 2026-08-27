@@ -8,19 +8,18 @@
 </head>
 <body>
   <nav class="nav">
-    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
-    <a href="index.html">Home</a>
-    <a class="active" href="explore.html">Explore</a>
-    <a href="docs.html">API docs</a>
+    <a class="brand" href="index.html">Hex<i>X</i>strap</a>
+    <a class="n" href="index.html">Home</a>
+    <a class="n active" href="explore.html">Explore</a>
     <span class="nav-spacer"></span>
     <span id="nav-auth"></span>
   </nav>
   <main class="wrap">
     <h1>Explore</h1>
-    <p class="lead">Search public HexXstrap usernames and open their settings + FastFlags.</p>
+    <p class="lead">Search public usernames and open their settings.</p>
     <div class="card">
-      <label>Search username</label>
-      <input id="q" placeholder="e.g. ximmy" />
+      <label>Search</label>
+      <input id="q" placeholder="username" />
       <div class="row"><button id="go" type="button">Search</button></div>
       <div id="msg" class="msg"></div>
       <div id="list" class="list"></div>
@@ -43,9 +42,9 @@
           showMsg($("msg"), "No public users found.", "");
           return;
         }
-        showMsg($("msg"), data.length + " user(s)", "");
+        showMsg($("msg"), data.length + " user" + (data.length === 1 ? "" : "s"), "");
         $("list").innerHTML = data.map((p) =>
-          `<a class="item" href="user.html?u=${encodeURIComponent(p.username)}"><div><b>${p.username}</b><br><small>Updated ${formatWhen(p.updated_at)}</small></div><div>View →</div></a>`
+          `<a class="item" href="user.html?u=${encodeURIComponent(p.username)}"><div><b>${p.username}</b><br><small>${formatWhen(p.updated_at)}</small></div><div>→</div></a>`
         ).join("");
       } catch (e) {
         showMsg($("msg"), e.message || String(e), "err");

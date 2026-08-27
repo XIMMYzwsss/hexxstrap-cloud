@@ -74,4 +74,3 @@ Never stored: Roblox cookies, Accounts tab logins, MAC addresses, passwords/toke
 | `me.html` | Save / load your config |
 | `explore.html` | Search users |
 | `user.html?u=name` | Public profile |
-| `docs.html` | API notes for HexXstrap later |

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Forgot password — HexXstrap Cloud</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
+    <a href="index.html">Home</a>
+    <span class="nav-spacer"></span>
+    <span id="nav-auth"></span>
+  </nav>
+  <main class="wrap">
+    <h1>Reset password</h1>
+    <p class="lead">We’ll email a link. Open it, then set a new password on this site.</p>
+    <div class="card" style="max-width:420px">
+      <label>Email</label>
+      <input id="email" type="email" autocomplete="email" />
+      <div class="row"><button id="go" type="button">Send reset email</button></div>
+      <div id="msg" class="msg"></div>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    $("go").onclick = async () => {
+      try {
+        const sb = getClient();
+        const redirectTo = new URL("reset.html", location.href).href;
+        const { error } = await sb.auth.resetPasswordForEmail($("email").value.trim(), { redirectTo });
+        if (error) throw error;
+        showMsg($("msg"), "If that email is registered, a reset link is on its way.", "ok");
+      } catch (e) {
+        showMsg($("msg"), e.message || String(e), "err");
+      }
+    };
+  </script>
+</body>
+</html>

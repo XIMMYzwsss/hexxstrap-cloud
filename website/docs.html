@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API docs — HexXstrap Cloud</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
+    <a href="index.html">Home</a>
+    <a href="explore.html">Explore</a>
+    <a class="active" href="docs.html">API docs</a>
+    <span class="nav-spacer"></span>
+    <span id="nav-auth"></span>
+  </nav>
+  <main class="wrap">
+    <h1>API docs</h1>
+    <p class="lead">GitHub Pages cannot run a server. This site uses a free <b>Supabase</b> project as the backend. HexXstrap can call the same REST API later with the user’s JWT.</p>
+
+    <div class="card warn" id="setup-warn" hidden>
+      <b>Not configured yet.</b> Put your Supabase URL and anon key in <code>js/config.js</code>, then follow the README in the website folder.
+    </div>
+
+    <div class="card">
+      <h2>Config shape</h2>
+      <pre>{
+  "settings": {},
+  "fastFlags": {},
+  "robloxGlobal": {},
+  "nvidiaFlags": {},
+  "extra": {},
+  "updatedAt": "2026-08-27T00:00:00.000Z"
+}</pre>
+      <p class="lead">PUT/upsert replaces the whole blob. Unknown keys go into <code>extra</code>. These settings keys are stripped: ApplyLaunchAccount, LaunchAccountFileName, LaunchLoggedOut, MAC fields, and anything whose name looks like cookie/password/token/secret.</p>
+    </div>
+
+    <div class="card">
+      <h2>Auth</h2>
+      <p>Supabase Auth, email + password. After login you get a Bearer JWT.</p>
+      <pre>POST {SUPABASE_URL}/auth/v1/signup
+POST {SUPABASE_URL}/auth/v1/token?grant_type=password
+POST {SUPABASE_URL}/auth/v1/recover
+PUT  {SUPABASE_URL}/auth/v1/user   (new password, Authorization: Bearer)</pre>
+      <p>Headers: <code>apikey: ANON_KEY</code> and <code>Authorization: Bearer ANON_KEY</code> (or user JWT after login).</p>
+    </div>
+
+    <div class="card">
+      <h2>Data (PostgREST)</h2>
+      <pre>GET  {SUPABASE_URL}/rest/v1/profiles?username=eq.{name}&amp;select=*
+GET  {SUPABASE_URL}/rest/v1/profiles?is_public=eq.true&amp;username=ilike.*q*&amp;select=username,updated_at
+GET  {SUPABASE_URL}/rest/v1/configs?user_id=eq.{uuid}&amp;select=*
+POST {SUPABASE_URL}/rest/v1/configs   (upsert own row, Prefer: resolution=merge-duplicates)
+PATCH {SUPABASE_URL}/rest/v1/profiles?id=eq.{uuid}</pre>
+      <p>Header <code>Content-Type: application/json</code>. Database columns: <code>settings</code>, <code>fast_flags</code>, <code>roblox_global</code>, <code>nvidia_flags</code>, <code>extra</code>, <code>updated_at</code>.</p>
+    </div>
+
+    <div class="card">
+      <h2>Example save body</h2>
+      <pre>{
+  "user_id": "&lt;your-user-uuid&gt;",
+  "settings": { "DarkTextures": true, "DarkTextureShade": 110 },
+  "fast_flags": { "FFlagSomething": "True" },
+  "roblox_global": {},
+  "nvidia_flags": {},
+  "extra": {}
+}</pre>
+    </div>
+
+    <div class="card">
+      <h2>Setup</h2>
+      <ol>
+        <li>Create a free project at <a href="https://supabase.com">supabase.com</a></li>
+        <li>SQL Editor → paste and run <code>supabase/schema.sql</code></li>
+        <li>Authentication → Providers → Email on. For testing, turn off “Confirm email”.</li>
+        <li>Authentication → URL Configuration: Site URL = this GitHub Pages URL; Redirect URLs include <code>/reset.html</code></li>
+        <li>Project Settings → API → copy URL + anon key into <code>js/config.js</code></li>
+        <li>Push this <code>website</code> folder to a GitHub repo and enable Pages (root of that repo).</li>
+      </ol>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    if (!configured()) $("setup-warn").hidden = false;
+  </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Log in — HexXstrap Cloud</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
+    <a href="index.html">Home</a>
+    <a href="explore.html">Explore</a>
+    <a href="docs.html">API docs</a>
+    <span class="nav-spacer"></span>
+    <span id="nav-auth"></span>
+  </nav>
+  <main class="wrap">
+    <h1>Log in</h1>
+    <div class="card" style="max-width:420px">
+      <label>Email</label>
+      <input id="email" type="email" autocomplete="email" />
+      <label>Password</label>
+      <input id="password" type="password" autocomplete="current-password" />
+      <div class="row">
+        <button id="go" type="button">Log in</button>
+        <a class="btn secondary" href="forgot.html">Forgot password</a>
+      </div>
+      <div id="msg" class="msg"></div>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    $("go").onclick = async () => {
+      try {
+        const sb = getClient();
+        const { error } = await sb.auth.signInWithPassword({
+          email: $("email").value.trim(),
+          password: $("password").value
+        });
+        if (error) throw error;
+        location.href = "me.html";
+      } catch (e) {
+        showMsg($("msg"), e.message || String(e), "err");
+      }
+    };
+  </script>
+</body>
+</html>

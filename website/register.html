@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register — HexXstrap Cloud</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
+    <a href="index.html">Home</a>
+    <a href="explore.html">Explore</a>
+    <a href="docs.html">API docs</a>
+    <span class="nav-spacer"></span>
+    <span id="nav-auth"></span>
+  </nav>
+  <main class="wrap">
+    <h1>Register</h1>
+    <p class="lead">This is a HexXstrap website account, not a Roblox login.</p>
+    <div class="card" style="max-width:420px">
+      <label>Username (public, 3–24 letters/numbers/_)</label>
+      <input id="username" autocomplete="username" />
+      <label>Email</label>
+      <input id="email" type="email" autocomplete="email" />
+      <label>Password</label>
+      <input id="password" type="password" autocomplete="new-password" />
+      <div class="row"><button id="go" type="button">Create account</button></div>
+      <div id="msg" class="msg"></div>
+      <p class="lead">Already have an account? <a href="login.html">Log in</a></p>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    $("go").onclick = async () => {
+      const username = $("username").value.trim();
+      const email = $("email").value.trim();
+      const password = $("password").value;
+      if (!/^[a-zA-Z0-9_]{3,24}$/.test(username)) {
+        showMsg($("msg"), "Username must be 3–24 letters, numbers, or underscores.", "err");
+        return;
+      }
+      try {
+        const sb = getClient();
+        const taken = await sb.from("profiles").select("id").ilike("username", username).maybeSingle();
+        if (taken.data) {
+          showMsg($("msg"), "That username is taken.", "err");
+          return;
+        }
+        const { error } = await sb.auth.signUp({
+          email,
+          password,
+          options: { data: { username } }
+        });
+        if (error) throw error;
+        showMsg($("msg"), "Account created. If email confirmation is on, check your inbox, then log in.", "ok");
+      } catch (e) {
+        showMsg($("msg"), e.message || String(e), "err");
+      }
+    };
+  </script>
+</body>
+</html>

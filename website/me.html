@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My settings — HexXstrap Cloud</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
+    <a href="index.html">Home</a>
+    <a href="explore.html">Explore</a>
+    <a href="docs.html">API docs</a>
+    <span class="nav-spacer"></span>
+    <span id="nav-auth"></span>
+  </nav>
+  <main class="wrap">
+    <h1>My settings</h1>
+    <p class="lead">Paste or edit the full HexXstrap config JSON. Save replaces everything (except forbidden account fields, which are stripped).</p>
+    <div class="card">
+      <div class="row">
+        <div>Username: <b id="uname">—</b></div>
+        <div>Last saved: <b id="when">—</b></div>
+        <label class="toggle"><input id="pub" type="checkbox" checked /> Public profile</label>
+      </div>
+      <label>Config JSON</label>
+      <textarea id="json"></textarea>
+      <div class="row">
+        <button id="save" type="button">Save all</button>
+        <button id="reload" class="secondary" type="button">Reload</button>
+      </div>
+      <div id="msg" class="msg"></div>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const empty = { settings: {}, fastFlags: {}, robloxGlobal: {}, nvidiaFlags: {}, extra: {} };
+
+    async function load() {
+      const sb = getClient();
+      const user = await currentUser();
+      if (!user) { location.href = "login.html"; return; }
+      const { data: profile, error: pErr } = await sb.from("profiles").select("*").eq("id", user.id).single();
+      if (pErr) throw pErr;
+      $("uname").textContent = profile.username;
+      $("pub").checked = profile.is_public;
+      const { data: row, error: cErr } = await sb.from("configs").select("*").eq("user_id", user.id).single();
+      if (cErr) throw cErr;
+      const shaped = toApiShape(row);
+      $("when").textContent = formatWhen(shaped.updatedAt);
+      $("json").value = JSON.stringify({
+        settings: shaped.settings,
+        fastFlags: shaped.fastFlags,
+        robloxGlobal: shaped.robloxGlobal,
+        nvidiaFlags: shaped.nvidiaFlags,
+        extra: shaped.extra
+      }, null, 2);
+    }
+
+    $("reload").onclick = async () => {
+      try { await load(); showMsg($("msg"), "Reloaded.", "ok"); }
+      catch (e) { showMsg($("msg"), e.message || String(e), "err"); }
+    };
+
+    $("save").onclick = async () => {
+      try {
+        const sb = getClient();
+        const user = await currentUser();
+        if (!user) { location.href = "login.html"; return; }
+        const parsed = JSON.parse($("json").value || "{}");
+        const norm = normalizeConfig(parsed);
+        const { error: cErr } = await sb.from("configs").upsert({
+          user_id: user.id,
+          settings: norm.settings,
+          fast_flags: norm.fastFlags,
+          roblox_global: norm.robloxGlobal,
+          nvidia_flags: norm.nvidiaFlags,
+          extra: norm.extra
+        });
+        if (cErr) throw cErr;
+        const { error: pErr } = await sb.from("profiles").update({ is_public: $("pub").checked }).eq("id", user.id);
+        if (pErr) throw pErr;
+        await load();
+        showMsg($("msg"), "Saved. Account/cookie fields were stripped if present.", "ok");
+      } catch (e) {
+        showMsg($("msg"), e.message || String(e), "err");
+      }
+    };
+
+    load().catch((e) => showMsg($("msg"), e.message || String(e), "err"));
+  </script>
+</body>
+</html>

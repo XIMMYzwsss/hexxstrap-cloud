@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User — HexXstrap Cloud</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">Hex<span>X</span>strap</a>
+    <a href="index.html">Home</a>
+    <a href="explore.html">Explore</a>
+    <a href="docs.html">API docs</a>
+    <span class="nav-spacer"></span>
+    <span id="nav-auth"></span>
+  </nav>
+  <main class="wrap">
+    <h1 id="title">User</h1>
+    <p class="lead" id="when"></p>
+    <div class="card">
+      <label>Filter FastFlag keys</label>
+      <input id="ffilter" placeholder="type to filter" />
+      <div style="overflow:auto; max-height:360px; margin-top:12px">
+        <table>
+          <thead><tr><th>Flag</th><th>Value</th></tr></thead>
+          <tbody id="flags"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Settings</h2>
+      <div style="overflow:auto; max-height:280px">
+        <table>
+          <thead><tr><th>Key</th><th>Value</th></tr></thead>
+          <tbody id="settings"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Raw JSON</h2>
+      <pre id="raw"></pre>
+    </div>
+    <div id="msg" class="msg"></div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let flags = {};
+
+    function rows(obj, tbody, filter) {
+      const f = (filter || "").toLowerCase();
+      const keys = Object.keys(obj || {}).sort();
+      tbody.innerHTML = keys
+        .filter((k) => !f || k.toLowerCase().includes(f))
+        .map((k) => {
+          const v = obj[k];
+          const text = typeof v === "object" ? JSON.stringify(v) : String(v);
+          return `<tr><td><code>${k}</code></td><td>${text.replace(/</g, "&lt;")}</td></tr>`;
+        }).join("") || `<tr><td colspan="2">None</td></tr>`;
+    }
+
+    async function load() {
+      const u = new URLSearchParams(location.search).get("u") || "";
+      if (!u) { showMsg($("msg"), "Missing username.", "err"); return; }
+      $("title").textContent = u;
+      const sb = getClient();
+      const { data: profile, error: pErr } = await sb.from("profiles").select("*").eq("username", u).maybeSingle();
+      if (pErr) throw pErr;
+      if (!profile) throw new Error("User not found.");
+      if (!profile.is_public) throw new Error("This profile is private.");
+      $("when").textContent = "Last updated " + formatWhen(profile.updated_at);
+      const { data: row, error: cErr } = await sb.from("configs").select("*").eq("user_id", profile.id).single();
+      if (cErr) throw cErr;
+      const shaped = toApiShape(row);
+      flags = shaped.fastFlags || {};
+      rows(flags, $("flags"), $("ffilter").value);
+      rows(shaped.settings, $("settings"), "");
+      $("raw").textContent = JSON.stringify(shaped, null, 2);
+      document.title = u + " — HexXstrap Cloud";
+    }
+
+    $("ffilter").addEventListener("input", () => rows(flags, $("flags"), $("ffilter").value));
+    load().catch((e) => showMsg($("msg"), e.message || String(e), "err"));
+  </script>
+</body>
+</html>

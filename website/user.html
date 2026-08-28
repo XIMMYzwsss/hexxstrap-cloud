@@ -20,7 +20,7 @@
       <h2>FastFlags</h2>
       <label>Filter</label>
       <input id="ffilter" placeholder="flag name" />
-      <div style="overflow:auto; max-height:360px; margin-top:12px">
+      <div style="overflow:auto; max-height:520px; margin-top:12px">
         <table>
           <thead><tr><th>Flag</th><th>Value</th></tr></thead>
           <tbody id="flags"></tbody>
@@ -28,16 +28,7 @@
       </div>
     </div>
     <div class="card">
-      <h2>Settings</h2>
-      <div style="overflow:auto; max-height:280px">
-        <table>
-          <thead><tr><th>Key</th><th>Value</th></tr></thead>
-          <tbody id="settings"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Raw JSON</h2>
+      <h2>Raw FastFlags JSON</h2>
       <pre id="raw"></pre>
     </div>
     <div id="msg" class="msg"></div>
@@ -67,14 +58,12 @@
       if (pErr) throw pErr;
       if (!profile) throw new Error("User not found.");
       if (!profile.is_public) throw new Error("This profile is private.");
-      $("when").textContent = "Updated " + formatWhen(profile.updated_at);
-      const { data: row, error: cErr } = await sb.from("configs").select("*").eq("user_id", profile.id).single();
+      $("when").textContent = "Updated " + formatWhen(profile.updated_at) + (profile.account_level != null ? " · Lvl " + profile.account_level : "");
+      const { data: row, error: cErr } = await sb.from("configs").select("fast_flags, updated_at").eq("user_id", profile.id).single();
       if (cErr) throw cErr;
-      const shaped = toApiShape(row);
-      flags = shaped.fastFlags || {};
+      flags = (row && row.fast_flags) || {};
       rows(flags, $("flags"), $("ffilter").value);
-      rows(shaped.settings, $("settings"), "");
-      $("raw").textContent = JSON.stringify(shaped, null, 2);
+      $("raw").textContent = JSON.stringify(flags, null, 2);
       document.title = u + " — HexXstrap Cloud";
     }
     $("ffilter").addEventListener("input", () => rows(flags, $("flags"), $("ffilter").value));

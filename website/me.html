@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>My settings — HexXstrap Cloud</title>
+  <title>My FastFlags — HexXstrap Cloud</title>
   <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
@@ -14,18 +14,18 @@
     <span id="nav-auth"></span>
   </nav>
   <main class="wrap">
-    <h1>My settings</h1>
-    <p class="lead">Paste the full HexXstrap config. Save replaces everything except account/cookie fields.</p>
+    <h1>My FastFlags</h1>
+    <p class="lead">Edit the FastFlags JSON HexXstrap syncs for Explore. App settings are not shared.</p>
     <div class="card">
       <div class="meta">
         <span>User <b id="uname">—</b></span>
         <span>Saved <b id="when">—</b></span>
         <label class="toggle"><input id="pub" type="checkbox" checked /> Public profile</label>
       </div>
-      <label>Config JSON</label>
+      <label>FastFlags JSON</label>
       <textarea id="json"></textarea>
       <div class="row">
-        <button id="save" type="button">Save all</button>
+        <button id="save" type="button">Save FastFlags</button>
         <button id="reload" class="secondary" type="button">Reload</button>
       </div>
       <div id="msg" class="msg"></div>
@@ -43,17 +43,10 @@
       if (pErr) throw pErr;
       $("uname").textContent = profile.username;
       $("pub").checked = profile.is_public;
-      const { data: row, error: cErr } = await sb.from("configs").select("*").eq("user_id", user.id).single();
+      const { data: row, error: cErr } = await sb.from("configs").select("fast_flags, updated_at").eq("user_id", user.id).single();
       if (cErr) throw cErr;
-      const shaped = toApiShape(row);
-      $("when").textContent = formatWhen(shaped.updatedAt);
-      $("json").value = JSON.stringify({
-        settings: shaped.settings,
-        fastFlags: shaped.fastFlags,
-        robloxGlobal: shaped.robloxGlobal,
-        nvidiaFlags: shaped.nvidiaFlags,
-        extra: shaped.extra
-      }, null, 2);
+      $("when").textContent = formatWhen(row && row.updated_at);
+      $("json").value = JSON.stringify((row && row.fast_flags) || {}, null, 2);
     }
 
     $("reload").onclick = async () => {
@@ -67,14 +60,15 @@
         const user = await currentUser();
         if (!user) { location.href = "login.html"; return; }
         const parsed = JSON.parse($("json").value || "{}");
-        const norm = normalizeConfig(parsed);
+        if (parsed == null || typeof parsed !== "object" || Array.isArray(parsed))
+          throw new Error("FastFlags must be a JSON object.");
         const { error: cErr } = await sb.from("configs").upsert({
           user_id: user.id,
-          settings: norm.settings,
-          fast_flags: norm.fastFlags,
-          roblox_global: norm.robloxGlobal,
-          nvidia_flags: norm.nvidiaFlags,
-          extra: norm.extra
+          settings: {},
+          fast_flags: parsed,
+          roblox_global: {},
+          nvidia_flags: {},
+          extra: {}
         });
         if (cErr) throw cErr;
         const { error: pErr } = await sb.from("profiles").update({ is_public: $("pub").checked }).eq("id", user.id);

@@ -50,7 +50,7 @@ Commit and push. The anon key is meant to be public (row security in the databas
 ## 4. Try it
 
 - Register with email, password, username
-- Save a JSON blob on **My settings**
+- Save FastFlags JSON on **My FastFlags**
 - Search the username on **Explore**
 - Open **Forgot password** (needs the redirect URLs above)
 

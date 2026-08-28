@@ -95,7 +95,7 @@ async function navAuth() {
   try {
     const user = await currentUser();
     if (user) {
-      slot.innerHTML = '<a class="n" href="me.html">My settings</a><a class="n" href="#" id="logout-link">Log out</a>';
+      slot.innerHTML = '<a class="n" href="me.html">My FastFlags</a><a class="n" href="#" id="logout-link">Log out</a>';
       $("logout-link")?.addEventListener("click", async (e) => {
         e.preventDefault();
         await getClient().auth.signOut();
